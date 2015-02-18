@@ -1,7 +1,11 @@
+#define USE_US_TIMER
+
 #include "ets_sys.h"
 #include "osapi.h"
 #include "gpio.h"
 #include "os_type.h"
+
+
 
 static uint16_t lpd6803_pixels[512];
 static uint16_t numLEDs = 512; // start out with max buffer for init
