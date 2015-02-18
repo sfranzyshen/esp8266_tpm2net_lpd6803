@@ -1,5 +1,5 @@
 # esp8266_tpm2net_lpd6803
-This is a custom firmware for the esp8266 wifi module that will drive a strand of lpd6803 LEDs using the TPM2NET protocol. This is based on work by Frans (Frans-Willem) ...
+This is a custom firmware for the esp8266 wifi module that will drive a strand of lpd6803 LEDs using the TPM2NET protocol. This is based on work by Frans (Frans-Willem) and popsodav ...
 
 #How to build a build environment.
 
