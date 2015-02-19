@@ -135,11 +135,11 @@ void ICACHE_FLASH_ATTR lpd6803_strip(uint8_t * data, uint16_t len) {
 	for( i = 0; i < numLEDs; i++ ) {
 
 		uint16_t cled = i * 3; // current led array location
-		uint8_t rbyte = data[cled]; // red byte
-		uint8_t gbyte = data[cled+1]; // green byte
-		uint8_t bbyte = data[cled+2]; // blue byte
+		//uint8_t rbyte = data[cled]; // red byte
+		//uint8_t gbyte = data[cled+1]; // green byte
+		//uint8_t bbyte = data[cled+2]; // blue byte
 
-		lpd6803_setPixelColor(i, rbyte, gbyte, bbyte); // load up lpd6803's data array
+		lpd6803_setPixelColor(i, data[cled],data[cled+1], data[cled+2]); // load up lpd6803's data array
 	}
 
 	lpd6803_show();
