@@ -5,6 +5,10 @@ This is a custom firmware for the esp8266 wifi module that will drive a strand o
 
 Connect GPIO_0 of ESP8266 to DATA and GPIO_2 to CLCK.
 
+#this needs testing ... upto 512 rgb lpd6803 leds
+
+we need help testing this since I do not have ws2801 leds ...
+
 #How to build a build environment.
 
 see this site from cnlohr: https://github.com/cnlohr/ws2812esp8266
