@@ -1,14 +1,13 @@
 #define USE_US_TIMER
+#define maxLEDs 256
 
 #include "ets_sys.h"
 #include "osapi.h"
 #include "gpio.h"
 #include "os_type.h"
 
-
-
-static uint16_t lpd6803_pixels[512];
-static uint16_t numLEDs = 512; // start out with max buffer for init
+static uint16_t lpd6803_pixels[maxLEDs];
+static uint16_t numLEDs = maxLEDs; // start out with max buffer for init
 
 static int lpd6803_SendMode; // Used in interrupt 0=start,1=header,2=data,3=data done
 static uint32_t lpd6803_BitCount;   // Used in interrupt
@@ -97,7 +96,6 @@ void ICACHE_FLASH_ATTR lpd6803_LedOut() {
 }
 
 void ICACHE_FLASH_ATTR lpd6803_setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
-
 	uint16_t data;
 
 	if (n > numLEDs)
@@ -114,16 +112,13 @@ void ICACHE_FLASH_ATTR lpd6803_setPixelColor(uint16_t n, uint8_t r, uint8_t g, u
 }
 
 void ICACHE_FLASH_ATTR lpd6803_setAllPixelColor(uint8_t r, uint8_t g, uint8_t b) {
-
 	uint16_t i;
 	for (i = 0; i < numLEDs; i++) {
 		lpd6803_setPixelColor(i, r, g, b);
 	}
-
 }
 
 void ICACHE_FLASH_ATTR lpd6803_show(void) {
-
 	lpd6803_BitCount = lpd6803_LedIndex = lpd6803_BlankCounter = 0;
 	lpd6803_SendMode = 0;
 }
@@ -132,21 +127,19 @@ void ICACHE_FLASH_ATTR lpd6803_strip(uint8_t * data, uint16_t len) {
 	uint16_t i;
 	numLEDs = len/3; // set numLEDs to number recieved from network
 
-	for( i = 0; i < numLEDs; i++ ) {
+	if (lpd6803_SendMode != 3) { // wait until data is done?
+		return; //drop frame
+	}
 
+	for(i = 0; i < numLEDs; i++) {
 		uint16_t cled = i * 3; // current led array location
-		//uint8_t rbyte = data[cled]; // red byte
-		//uint8_t gbyte = data[cled+1]; // green byte
-		//uint8_t bbyte = data[cled+2]; // blue byte
-
-		lpd6803_setPixelColor(i, data[cled],data[cled+1], data[cled+2]); // load up lpd6803's data array
+		lpd6803_setPixelColor(i, data[cled], data[cled+1], data[cled+2]); // load up lpd6803's data array
 	}
 
 	lpd6803_show();
 }
 
 void ICACHE_FLASH_ATTR lpd6803_init() {
-
 	gpio_init();
 	//Set GPIO2 to output mode for CLCK
 	PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
@@ -163,7 +156,6 @@ void ICACHE_FLASH_ATTR lpd6803_init() {
 	os_timer_arm_us(&lpd6803_timer, 40, 1);
 
 	lpd6803_show();
-	
 }
 
 
