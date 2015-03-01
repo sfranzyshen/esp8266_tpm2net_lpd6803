@@ -7,7 +7,7 @@ Connect GPIO_0 of ESP8266 to DATA and GPIO_2 to CLCK. I have found mislabled str
 
 #this needs testing ... upto 256 rgb lpd6803 leds
 
-we need help testing this since I do not have ws2801 leds ...
+we need help testing this upto 256 pixels ... I can verify up to 50 pixels (that is all I have)
 
 #How to build a build environment.
 
