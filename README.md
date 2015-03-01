@@ -3,7 +3,7 @@ This is a custom firmware for the esp8266 wifi module that will drive a strand o
 
 # How to connect hardware
 
-Connect GPIO_0 of ESP8266 to DATA and GPIO_2 to CLCK.
+Connect GPIO_0 of ESP8266 to DATA and GPIO_2 to CLCK. I have found mislabled strips ... so if it doesn't work, switch the data and clock wires.
 
 #this needs testing ... upto 256 rgb lpd6803 leds
 
