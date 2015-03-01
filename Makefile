@@ -3,18 +3,18 @@ FW_FILE_1:=0x00000.bin
 FW_FILE_2:=0x40000.bin
 
 TARGET_OUT:=image.elf
-OBJS:=user/tpm2net.o \
-	user/lpd6803.o \
-	user/user_main.o
+OBJS:=user/lpd6803.o \
+	user/user_main.o \
+	user/tpm2net.o
 
-SRCS:=user/tpm2net.c \
-	user/lpd6803.c \
-	user/user_main.c 
+SRCS:=user/lpd6803.c \
+	user/user_main.c \
+	user/tpm2net.c
 
 GCC_FOLDER:=/home/user/esp8266/xtensa-toolchain-build/build-lx106
 ESPTOOL_PY:=/home/user/esp8266/esptool/esptool.py
 FW_TOOL:=/home/user/esp8266/other/esptool/esptool
-SDK:=/home/user/esp8266/esp_iot_sdk_v0.9.3
+SDK:=/home/user/esp8266/esp_iot_sdk_v0.9.5
 
 
 XTLIB:=$(SDK)/lib

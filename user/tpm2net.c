@@ -15,6 +15,7 @@ static void ICACHE_FLASH_ATTR tpm2net_recv(void *arg, char *pusrdata, unsigned s
         uint16_t framelength = ((uint16_t)data[2] << 8) | (uint16_t)data[3]; // frame length
         uint8_t packagenum = data[4]; // packet number 0-255 0x00 = no frame split
         uint8_t numpackages = data[5]; // total packets 1-255
+
         if (blocktype == 0xDA) { // data command ...
             if (length >= framelength + 7 && data[6+framelength]==0x36) { // header end (packet stop)
                 if (numpackages == 0x01) { // no frame split found

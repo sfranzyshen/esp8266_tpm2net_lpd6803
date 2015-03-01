@@ -1,13 +1,11 @@
-#define USE_US_TIMER
-#define maxLEDs 256
-
 #include "ets_sys.h"
 #include "osapi.h"
 #include "gpio.h"
 #include "os_type.h"
+#include "lpd6803.h"
 
 static uint16_t lpd6803_pixels[maxLEDs];
-static uint16_t numLEDs = maxLEDs; // start out with max buffer for init
+static uint16_t numLEDs = maxLEDs;
 
 static int lpd6803_SendMode; // Used in interrupt 0=start,1=header,2=data,3=data done
 static uint32_t lpd6803_BitCount;   // Used in interrupt
@@ -20,22 +18,21 @@ static uint16_t lpd6803_swapAsap = 0; //flag to indicate that the colors need an
 static os_timer_t lpd6803_timer;
 
 void ICACHE_FLASH_ATTR lpd6803_LedOut() {
-
 	switch (lpd6803_SendMode) {
-	case 3:            //Done..just send clocks with zero data
+	case LPD6803_DONE:            //Done..just send clocks with zero data
 		if (lpd6803_swapAsap > 0) {
 			if (!lpd6803_BlankCounter) //AS SOON AS CURRENT pwm IS DONE. BlankCounter
 			{
 				lpd6803_BitCount = 0;
 				lpd6803_LedIndex = lpd6803_swapAsap;  //set current led
-				lpd6803_SendMode = 1;
+				lpd6803_SendMode = LPD6803_HEADER;
 				lpd6803_swapAsap = 0;
 				lpd6803_BlankCounter = 0;
 			}
 		}
 		break;
 
-	case 2:               //Sending Data
+	case LPD6803_DATA:               //Sending Data
 		if ((1 << (15 - lpd6803_BitCount)) & lpd6803_pixels[lpd6803_LedIndex]) {
 			if (!lpd6803_lastdata) { // digitalwrites take a long time, avoid if possible
 				// If not the first bit then output the next bits
@@ -61,28 +58,28 @@ void ICACHE_FLASH_ATTR lpd6803_LedOut() {
 				// no longer sending data, set the data pin low
 				GPIO_OUTPUT_SET(0, 0);
 				lpd6803_lastdata = 0;      // this is a lite optimization
-				lpd6803_SendMode = 3; //No more LEDs to go, we are done!
+				lpd6803_SendMode = LPD6803_DONE; //No more LEDs to go, we are done!
 			}
 		}
 		break;
-	case 1:            //Header
+	case LPD6803_HEADER:            //Header
 		if (lpd6803_BitCount < 32) {
 			GPIO_OUTPUT_SET(0, 0);
 			lpd6803_lastdata = 0;
 			lpd6803_BitCount++;
 			if (lpd6803_BitCount == 32) {
-				lpd6803_SendMode = 2; //If this was the last bit of header then move on to data.
+				lpd6803_SendMode = LPD6803_DATA; //If this was the last bit of header then move on to data.
 				lpd6803_LedIndex = 0;
 				lpd6803_BitCount = 0;
 			}
 		}
 		break;
-	case 0:            //Start
+	case LPD6803_START:            //Start
 		if (!lpd6803_BlankCounter) //AS SOON AS CURRENT pwm IS DONE. BlankCounter
 		{
 			lpd6803_BitCount = 0;
 			lpd6803_LedIndex = 0;
-			lpd6803_SendMode = 1;
+			lpd6803_SendMode = LPD6803_HEADER;
 		}
 		break;
 	}
@@ -101,11 +98,11 @@ void ICACHE_FLASH_ATTR lpd6803_setPixelColor(uint16_t n, uint8_t r, uint8_t g, u
 	if (n > numLEDs)
 		return;
 
-	data = r & 0x1F;
+	data = (int) ((g / 255.0f) * 31);
 	data <<= 5;
-	data |= g & 0x1F;
+	data |= (int) ((r / 255.0f) * 31);
 	data <<= 5;
-	data |= b & 0x1F;
+	data |= (int) ((b / 255.0f) * 31);
 	data |= 0x8000;
 
 	lpd6803_pixels[n] = data;
@@ -116,27 +113,7 @@ void ICACHE_FLASH_ATTR lpd6803_setAllPixelColor(uint8_t r, uint8_t g, uint8_t b)
 	for (i = 0; i < numLEDs; i++) {
 		lpd6803_setPixelColor(i, r, g, b);
 	}
-}
 
-void ICACHE_FLASH_ATTR lpd6803_show(void) {
-	lpd6803_BitCount = lpd6803_LedIndex = lpd6803_BlankCounter = 0;
-	lpd6803_SendMode = 0;
-}
-
-void ICACHE_FLASH_ATTR lpd6803_strip(uint8_t * data, uint16_t len) {
-	uint16_t i;
-	numLEDs = len/3; // set numLEDs to number recieved from network
-
-	if (lpd6803_SendMode != 3) { // wait until data is done?
-		return; //drop frame
-	}
-
-	for(i = 0; i < numLEDs; i++) {
-		uint16_t cled = i * 3; // current led array location
-		lpd6803_setPixelColor(i, data[cled], data[cled+1], data[cled+2]); // load up lpd6803's data array
-	}
-
-	lpd6803_show();
 }
 
 void ICACHE_FLASH_ATTR lpd6803_init() {
@@ -158,6 +135,23 @@ void ICACHE_FLASH_ATTR lpd6803_init() {
 	lpd6803_show();
 }
 
+void ICACHE_FLASH_ATTR lpd6803_show(void) {
+	lpd6803_BitCount = lpd6803_LedIndex = lpd6803_BlankCounter = 0;
+	lpd6803_SendMode = LPD6803_START;
+}
 
+void ICACHE_FLASH_ATTR lpd6803_strip(uint8_t * buffer, uint16_t length) {
+	if (lpd6803_SendMode != LPD6803_DONE) { // wait until data is done?
+		return; //drop frame
+	}
+	numLEDs = length/3;
 
+	uint16_t i;
+	for( i = 0; i < numLEDs; i++ ) {
+		uint16_t cled = i * 3; // current led array location
+		lpd6803_setPixelColor(i, buffer[cled], buffer[cled+1], buffer[cled+2]); // load up lpd6803's data array
+	}
+
+	lpd6803_show();
+}
 
