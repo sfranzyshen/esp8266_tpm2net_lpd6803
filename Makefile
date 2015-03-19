@@ -14,7 +14,7 @@ SRCS:=user/lpd6803.c \
 GCC_FOLDER:=/home/user/esp8266/xtensa-toolchain-build/build-lx106
 ESPTOOL_PY:=/home/user/esp8266/esptool/esptool.py
 FW_TOOL:=/home/user/esp8266/other/esptool/esptool
-SDK:=/home/user/esp8266/esp_iot_sdk_v0.9.5
+SDK:=/home/user/esp8266/esp_iot_sdk_v0.9.4
 
 
 XTLIB:=$(SDK)/lib
