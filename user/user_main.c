@@ -9,7 +9,7 @@
 void ICACHE_FLASH_ATTR user_init() {
 	system_timer_reinit();
 
-	wifi_set_opmode( 2 ); 
+	wifi_set_opmode(2); 
 	wifi_station_dhcpc_start();
 
 	lpd6803_init();
