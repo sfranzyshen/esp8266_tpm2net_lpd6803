@@ -1,4 +1,4 @@
-#define maxLEDs 256
+#define maxLEDs 512
 #define LPD6803_START 0
 #define LPD6803_HEADER 1
 #define LPD6803_DATA 2
