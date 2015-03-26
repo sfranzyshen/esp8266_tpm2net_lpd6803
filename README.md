@@ -1,7 +1,8 @@
 #UPDATE: 
 We are consolidating the code into a single driver as it is expanding quickly ... the new code set is locate here:
-https://github.com/sfranzyshen/esp8266_tpm2net 
+https://github.com/sfranzyshen/esp8266_tpm2net
 
+[![Logo](http://goo.gl/w71QcJ)](https://github.com/sfranzyshen/esp8266_tpm2net)
 # esp8266_tpm2net_lpd6803
 This is a custom firmware for the esp8266 wifi module that will drive a strand of lpd6803 LEDs using the TPM2NET protocol. This is based on work by Frans (Frans-Willem) and popsodav ...
 
